@@ -22,3 +22,5 @@ package-lock.json
 
 # visual studio
 .history
+
+/dist

@@ -101,6 +101,12 @@ export const getRouterData = app => {
     '/plug/spring': {
       component: dynamicWrapper(app, ['spring'], () => import('../routes/plug/spring')),
     },
+    '/plug/authc': {
+      component: dynamicWrapper(app, ['sign'], () => import('../routes/plug/sign')),
+    },
+    '/plug/authz': {
+      component: dynamicWrapper(app, ['sign'], () => import('../routes/plug/sign')),
+    },
     '/system/manage': {
       component: dynamicWrapper(app, ['manage'], () => import('../routes/sysytem/user')),
     },
@@ -109,6 +115,19 @@ export const getRouterData = app => {
     },
     '/system/auth': {
       component: dynamicWrapper(app, ['auth'], () => import('../routes/sysytem/appAuth')),
+    },
+    '/system/executor': {
+      component: dynamicWrapper(app, ['executor'], () => import('../routes/sysytem/executor')),
+    },
+
+    '/app_manage/app': {
+      component: dynamicWrapper(app, ['app_auth'], () => import('../routes/AppManage/app')),
+    },
+    '/app_manage/api_group': {
+      component: dynamicWrapper(app, ['api_group'], () => import('../routes/AppManage/apiGroup')),
+    },
+    '/app_manage/api': {
+      component: dynamicWrapper(app, ['api'], () => import('../routes/AppManage/api')),
     },
 
     '/exception/403': {

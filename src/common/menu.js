@@ -2,8 +2,13 @@ import { isUrl } from '../utils/utils';
 
 const menuData = [
   {
-    name: '插件列表',
+    name: '系统概览',
     icon: 'dashboard',
+    path: 'home'
+  }
+  ,{
+    name: '插件列表',
+    icon: 'pic-center',
     path: 'plug',
     children: [
       {
@@ -38,6 +43,33 @@ const menuData = [
         name: 'springCloud',
         path: 'spring',
       },
+      {
+        name: 'authc',
+        path: 'authc',
+      },
+      {
+        name: 'authz',
+        path: 'authz',
+      },
+    ],
+  },
+  {
+    name: '应用管理',
+    icon: 'appstore',
+    path: 'app_manage',
+    children: [
+      {
+        name: 'APP管理',
+        path: 'app',
+      },
+      {
+        name: 'API分组',
+        path: 'api_group',
+      },
+      {
+        name: 'API管理',
+        path: 'api'
+      }
     ],
   },
   {
@@ -56,6 +88,10 @@ const menuData = [
       {
         name: '认证管理',
         path: 'auth'
+      },
+      {
+        name: 'executor管理',
+        path: 'executor'
       }
     ],
   },
