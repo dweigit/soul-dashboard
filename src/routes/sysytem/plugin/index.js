@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Table,Input, Button, message } from "antd";
+import { Table, Input, Button, message, Popconfirm } from "antd";
 import { connect } from "dva";
 import AddModal from "./AddModal";
 
@@ -65,11 +65,13 @@ export default class Plugin extends Component {
               disabled={true}
               {...plugin}
               handleOk={values => {
-                const { code, enabled, id } = values;
+                const { name, enabled, id, role, config } = values;
                 dispatch({
                   type: "plugin/update",
                   payload: {
-                    code,
+                    config,
+                    role,
+                    name,
                     enabled,
                     id
                   },
@@ -79,6 +81,7 @@ export default class Plugin extends Component {
                     pageSize: 12
                   },
                   callback: () => {
+                    this.setState({ selectedRowKeys: [] });
                     this.closeModal();
                   }
                 });
@@ -116,6 +119,15 @@ export default class Plugin extends Component {
           name,
           currentPage,
           pageSize: 12
+        },
+        callback: () => {
+          this.setState({ selectedRowKeys: [] });
+          dispatch({
+            type: "global/fetchPlugins",
+            payload: {
+              callback: () => { }
+            }
+          });
         }
       });
     } else {
@@ -133,11 +145,13 @@ export default class Plugin extends Component {
           disabled={false}
           handleOk={values => {
             const { dispatch } = this.props;
-            const { code, enabled } = values;
+            const { name, enabled, role,config } = values;
             dispatch({
               type: "plugin/add",
               payload: {
-                code,
+                name,
+                config,
+                role,
                 enabled
               },
               fetchValue: {
@@ -147,6 +161,12 @@ export default class Plugin extends Component {
               },
               callback: () => {
                 this.closeModal();
+                dispatch({
+                  type: "global/fetchPlugins",
+                  payload: {
+                    callback: () => { }
+                  }
+                });
               }
             });
           }}
@@ -166,6 +186,15 @@ export default class Plugin extends Component {
     });
   };
 
+  operateChange = (checked, record) => {
+    const { dispatch } = this.props;
+    const { id } = record;
+    dispatch({
+      type: 'plugin/changeStatus',
+      payload: { id, enabled: checked }
+    })
+  }
+
   render() {
     const { plugin, loading } = this.props;
     const { pluginList, total } = plugin;
@@ -175,13 +204,49 @@ export default class Plugin extends Component {
         align: "center",
         title: "插件名",
         dataIndex: "name",
-        key: "name"
+        key: "name",
+        width: 200
+      },
+      {
+        align: "center",
+        title: "角色",
+        dataIndex: "role",
+        width: 200,
+        key: "role",
+        render: (text) => {
+          const map = {
+            0: "系统",
+            1: "自定义"
+          }
+          return <div>{map[text] || '----'}</div>
+        }
+      },
+      {
+        align: "center",
+        title: "配置",
+        dataIndex: "config",
+        key: "config"
+      },
+      {
+        align: "center",
+        title: "创建时间",
+        dataIndex: "dateCreated",
+        key: "dateCreated",
+        width: 160
+      },
+      {
+        align: "center",
+        title: "更新时间",
+        dataIndex: "dateUpdated",
+        key: "dateUpdated",
+        width: 160
       },
       {
         align: "center",
         title: "状态",
         dataIndex: "enabled",
         key: "enabled",
+        width: 150,
         render: text => {
           if (text) {
             return <div className="open">开启</div>;
@@ -192,21 +257,10 @@ export default class Plugin extends Component {
       },
       {
         align: "center",
-        title: "创建时间",
-        dataIndex: "dateCreated",
-        key: "dateCreated"
-      },
-      {
-        align: "center",
-        title: "更新时间",
-        dataIndex: "dateUpdated",
-        key: "dateUpdated"
-      },
-      {
-        align: "center",
         title: "操作",
-        dataIndex: "operate",
-        key: "operate",
+        dataIndex: "time",
+        key: "time",
+        width: 150,
         render: (text, record) => {
           return (
             <div
@@ -243,13 +297,23 @@ export default class Plugin extends Component {
           >
             查询
           </Button>
-          <Button
-            style={{ marginLeft: 20 }}
-            type="danger"
-            onClick={this.deleteClick}
+
+          <Popconfirm
+            title="你确认删除吗"
+            placement='bottom'
+            onConfirm={() => {
+              this.deleteClick()
+            }}
+            okText="确认"
+            cancelText="取消"
           >
-            删除勾选数据
-          </Button>
+            <Button
+              style={{ marginLeft: 20 }}
+              type="danger"
+            >
+              删除勾选数据
+            </Button>
+          </Popconfirm>
           <Button
             style={{ marginLeft: 20 }}
             type="primary"

@@ -89,7 +89,7 @@ export const getRouterData = app => {
     '/plug/rewrite': {
       component: dynamicWrapper(app, ['rewrite'], () => import('../routes/plug/rewrite')),
     },
-    '/plug/limiter': {
+    '/plug/rate_limiter': {
       component: dynamicWrapper(app, ['limiter'], () => import('../routes/plug/limiter')),
     },
     '/plug/divide': {
@@ -98,7 +98,7 @@ export const getRouterData = app => {
     '/plug/dubbo': {
       component: dynamicWrapper(app, ['dubbo'], () => import('../routes/plug/dubbo')),
     },
-    '/plug/spring': {
+    '/plug/springCloud': {
       component: dynamicWrapper(app, ['spring'], () => import('../routes/plug/spring')),
     },
     '/plug/authc': {
@@ -106,6 +106,9 @@ export const getRouterData = app => {
     },
     '/plug/authz': {
       component: dynamicWrapper(app, ['sign'], () => import('../routes/plug/sign')),
+    },
+    '/plug/:id': {
+      component: dynamicWrapper(app, ['common'], () => import('../routes/plug/common')),
     },
     '/system/manage': {
       component: dynamicWrapper(app, ['manage'], () => import('../routes/sysytem/user')),

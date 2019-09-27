@@ -54,12 +54,25 @@ export default {
         message.warn(json.message);
       }
     },
+    *changeStatus({ payload }, { call, put }) {
+      const json = yield call(updatePlugin, payload);
+      if (json.code === 200) {
+        message.success("修改成功");
+        yield put({
+          type: "updataPlugins",
+          payload,
+        });
+      } else {
+        message.warn(json.message);
+      }
+    },
     *delete(params, { call, put }) {
-      const { payload, fetchValue } = params;
+      const { payload, fetchValue, callback } = params;
       const { list } = payload;
       const json = yield call(deletePlugin, { list });
       if (json.code === 200) {
         message.success("删除成功");
+        callback();
         yield put({ type: "reload", fetchValue });
       } else {
         message.warn(json.message);
@@ -98,6 +111,19 @@ export default {
         ...state,
         pluginList: payload.dataList,
         total: payload.total
+      };
+    },
+    updataPlugins(state, { payload }) {
+      let pluginList = state.pluginList;
+      pluginList = pluginList.map((item) => {
+        if (item.id === payload.id) {
+          item.enabled = payload.enabled;
+        }
+        return item;
+      })
+      return {
+        ...state,
+        pluginList,
       };
     }
   }

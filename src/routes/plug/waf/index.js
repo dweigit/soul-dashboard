@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Table, Row, Col, Button, message } from "antd";
+import { Table, Row, Col, Button, message, Popconfirm } from "antd";
 import { connect } from "dva";
 import Selector from "./Selector";
 import Rule from "./Rule";
@@ -20,16 +20,27 @@ export default class Waf extends Component {
   }
 
   componentDidMount() {
-    this.getAllSelectors(1);
+    const { dispatch } = this.props;
+
+    dispatch({
+      type: "global/fetchPlugins",
+      payload: {
+        callback: (plugins) => {
+          this.getAllSelectors(1, plugins);
+        }
+      }
+    })
   }
 
-  getAllSelectors = page => {
+  getAllSelectors = (page, plugins) => {
     const { dispatch } = this.props;
+    const pluginId = this.getPluginId(plugins, "waf");
     dispatch({
       type: "waf/fetchSelector",
       payload: {
         currentPage: page,
-        pageSize: 12
+        pageSize: 12,
+        pluginId
       }
     });
   };
@@ -47,8 +58,8 @@ export default class Waf extends Component {
     });
   };
 
-  getPluginId = name => {
-    const { plugins } = this.props;
+  getPluginId = (plugins, name) => {
+
     const plugin = plugins.filter(item => {
       return item.name === name;
     });
@@ -65,8 +76,8 @@ export default class Waf extends Component {
 
   addSelector = () => {
     const { selectorPage } = this.state;
-    const { dispatch } = this.props;
-    const pluginId = this.getPluginId("waf");
+    const { dispatch, plugins } = this.props;
+    const pluginId = this.getPluginId(plugins, "waf");
     this.setState({
       popup: (
         <Selector
@@ -120,9 +131,9 @@ export default class Waf extends Component {
   };
 
   editSelector = record => {
-    const { dispatch } = this.props;
+    const { dispatch, plugins } = this.props;
     const { selectorPage } = this.state;
-    const pluginId = this.getPluginId("waf");
+    const pluginId = this.getPluginId(plugins, "waf");
     const { id } = record;
     dispatch({
       type: "waf/fetchSeItem",
@@ -161,9 +172,9 @@ export default class Waf extends Component {
   };
 
   deleteSelector = record => {
-    const { dispatch } = this.props;
+    const { dispatch, plugins } = this.props;
     const { selectorPage } = this.state;
-    const pluginId = this.getPluginId("waf");
+    const pluginId = this.getPluginId(plugins, "waf");
     dispatch({
       type: "waf/deleteSelector",
       payload: {
@@ -178,8 +189,9 @@ export default class Waf extends Component {
   };
 
   pageSelectorChange = page => {
-    this.setSate({ selectorPage: page });
-    this.getAllSelectors(page);
+    const { plugins } = this.props;
+    this.setState({ selectorPage: page });
+    this.getAllSelectors(page, plugins);
   };
 
   pageRuleChange = page => {
@@ -265,8 +277,8 @@ export default class Waf extends Component {
   };
 
   asyncClick = () => {
-    const { dispatch } = this.props;
-    const id = this.getPluginId("waf");
+    const { dispatch, plugins } = this.props;
+    const id = this.getPluginId(plugins, "waf");
     dispatch({
       type: "global/asyncPlugin",
       payload: {
@@ -311,6 +323,8 @@ export default class Waf extends Component {
         key: "operate",
         render: (text, record) => {
           return (
+
+
             <div>
               <span
                 style={{ marginRight: 8 }}
@@ -322,15 +336,28 @@ export default class Waf extends Component {
               >
                 修改
               </span>
-              <span
-                className="edit"
-                onClick={e => {
-                  e.stopPropagation();
+              <Popconfirm
+                title="你确认删除吗"
+                placement='bottom'
+                onCancel={(e) => {
+                  e.stopPropagation()
+                }}
+                onConfirm={(e) => {
+                  e.stopPropagation()
                   this.deleteSelector(record);
                 }}
+                okText="确认"
+                cancelText="取消"
               >
-                删除
-              </span>
+                <span
+                  className="edit"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                  }}
+                >
+                  删除
+                </span>
+              </Popconfirm>
             </div>
           );
         }
@@ -381,15 +408,30 @@ export default class Waf extends Component {
               >
                 修改
               </span>
-              <span
-                className="edit"
-                onClick={e => {
-                  e.stopPropagation();
+
+              <Popconfirm
+                title="你确认删除吗"
+                placement='bottom'
+                onCancel={(e) => {
+                  e.stopPropagation()
+                }}
+                onConfirm={(e) => {
+                  e.stopPropagation()
                   this.deleteRule(record);
                 }}
+                okText="确认"
+                cancelText="取消"
               >
-                删除
-              </span>
+                <span
+                  className="edit"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                  }}
+                >
+                  删除
+                </span>
+              </Popconfirm>
+
             </div>
           );
         }

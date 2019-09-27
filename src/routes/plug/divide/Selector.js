@@ -15,8 +15,8 @@ class AddModal extends Component {
 
     const selectorConditions = props.selectorConditions || [
       {
-        paramType: "",
-        operator: "",
+        paramType: "header",
+        operator: "=",
         paramName: "",
         paramValue: ""
       }
@@ -26,7 +26,7 @@ class AddModal extends Component {
       upstreamHost: "",
       protocol: "",
       upstreamUrl: "",
-      weight: ''
+      weight: '50'
     }]
 
     if (props.handle) {
@@ -64,11 +64,11 @@ class AddModal extends Component {
 
     if (upstreamList) {
       upstreamList.forEach((item, index) => {
-        const { upstreamHost, upstreamUrl } = item;
-        if (!upstreamHost || !upstreamUrl) {
+        const { upstreamHost, upstreamUrl,weight} = item;
+        if (!upstreamHost || !upstreamUrl || !weight) {
           message.destroy();
           message.error(
-            `第${index + 1}行http负载, upstreamHost和upstreamUrl不能为空`
+            `第${index + 1}行http负载, upstreamHost和upstreamUrl, weight不能为空`
           );
           result = false;
         }
@@ -109,8 +109,8 @@ class AddModal extends Component {
   handleAdd = () => {
     let { selectorConditions } = this.state;
     selectorConditions.push({
-      paramType: "",
-      operator: "",
+      paramType: "header",
+      operator: "=",
       paramName: "",
       paramValue: ""
     });
@@ -141,7 +141,7 @@ class AddModal extends Component {
         upstreamHost: "",
         protocol: "",
         upstreamUrl: "",
-        weight: ""
+        weight: "50"
       });
     } else {
       upstreamList = [];
@@ -189,6 +189,8 @@ class AddModal extends Component {
       operatorEnums,
       paramTypeEnums
     } = platform;
+
+    type = `${type}`
 
     if (operatorEnums) {
       operatorEnums = operatorEnums.filter(item => {
@@ -240,12 +242,12 @@ class AddModal extends Component {
           <FormItem label="类型" {...formItemLayout}>
             {getFieldDecorator("type", {
               rules: [{ required: true, message: "请选择类型" }],
-              initialValue: type
+              initialValue: type || "1"
             })(
               <Select>
                 {selectorTypeEnums.map(item => {
                   return (
-                    <Option key={item.code} value={item.code}>
+                    <Option key={item.code} value={`${item.code}`}>
                       {item.name}
                     </Option>
                   );

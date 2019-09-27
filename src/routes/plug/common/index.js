@@ -1,15 +1,15 @@
 import React, { Component } from "react";
-import { Table, Row, Col, Button, message, Popconfirm } from "antd";
+import { Table, Row, Col, Button, message,Popconfirm } from "antd";
 import { connect } from "dva";
 import Selector from "./Selector";
 import Rule from "./Rule";
 
-@connect(({ rewrite, global, loading }) => ({
+@connect(({ common, global, loading }) => ({
   ...global,
-  ...rewrite,
+  ...common,
   loading: loading.effects["global/fetchPlatform"]
 }))
-export default class Rewrite extends Component {
+export default class Common extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -31,11 +31,42 @@ export default class Rewrite extends Component {
     })
   }
 
+  componentDidUpdate(prevProps) {
+
+    const preId = prevProps.match.params.id
+    const newId = this.props.match.params.id;
+
+    if (newId !== preId) {
+      const { dispatch } = this.props;
+
+      dispatch({
+        type: "common/resetData",
+      });
+
+      dispatch({
+        type: "global/fetchPlugins",
+        payload: {
+          callback: (plugins) => {
+            this.getAllSelectors(1, plugins);
+          }
+        }
+      })
+    }
+  }
+
+  componentWillUnmount() {
+    const { dispatch } = this.props;
+    dispatch({
+      type: "common/resetData",
+    });
+  }
+
   getAllSelectors = (page, plugins) => {
     const { dispatch } = this.props;
-    const pluginId = this.getPluginId(plugins, "rewrite");
+    let name = this.props.match.params ? this.props.match.params.id : '';
+    const pluginId = this.getPluginId(plugins, name);
     dispatch({
-      type: "rewrite/fetchSelector",
+      type: "common/fetchSelector",
       payload: {
         currentPage: page,
         pageSize: 12,
@@ -48,7 +79,7 @@ export default class Rewrite extends Component {
     const { dispatch, currentSelector } = this.props;
     const selectorId = currentSelector ? currentSelector.id : "";
     dispatch({
-      type: "rewrite/fetchRule",
+      type: "common/fetchRule",
       payload: {
         selectorId,
         currentPage: page,
@@ -75,14 +106,15 @@ export default class Rewrite extends Component {
   addSelector = () => {
     const { selectorPage } = this.state;
     const { dispatch, plugins } = this.props;
-    const pluginId = this.getPluginId(plugins, "rewrite");
+    let name = this.props.match.params ? this.props.match.params.id : ''
+    const pluginId = this.getPluginId(plugins, name);
     this.setState({
       popup: (
         <Selector
           pluginId={pluginId}
           handleOk={selector => {
             dispatch({
-              type: "rewrite/addSelector",
+              type: "common/addSelector",
               payload: { pluginId, ...selector },
               fetchValue: { pluginId, currentPage: selectorPage, pageSize: 12 },
               callback: () => {
@@ -106,7 +138,7 @@ export default class Rewrite extends Component {
           <Rule
             handleOk={rule => {
               dispatch({
-                type: "rewrite/addRule",
+                type: "common/addRule",
                 payload: { selectorId, ...rule },
                 fetchValue: {
                   selectorId,
@@ -131,10 +163,11 @@ export default class Rewrite extends Component {
   editSelector = record => {
     const { dispatch, plugins } = this.props;
     const { selectorPage } = this.state;
-    const pluginId = this.getPluginId(plugins, "rewrite");
+    let name = this.props.match.params ? this.props.match.params.id : ''
+    const pluginId = this.getPluginId(plugins, name);
     const { id } = record;
     dispatch({
-      type: "rewrite/fetchSeItem",
+      type: "common/fetchSeItem",
       payload: {
         id
       },
@@ -145,7 +178,7 @@ export default class Rewrite extends Component {
               {...selector}
               handleOk={values => {
                 dispatch({
-                  type: "rewrite/updateSelector",
+                  type: "common/updateSelector",
                   payload: {
                     pluginId,
                     ...values,
@@ -172,9 +205,10 @@ export default class Rewrite extends Component {
   deleteSelector = record => {
     const { dispatch, plugins } = this.props;
     const { selectorPage } = this.state;
-    const pluginId = this.getPluginId(plugins, "rewrite");
+    let name = this.props.match.params ? this.props.match.params.id : ''
+    const pluginId = this.getPluginId(plugins, name);
     dispatch({
-      type: "rewrite/deleteSelector",
+      type: "common/deleteSelector",
       payload: {
         list: [record.id]
       },
@@ -202,13 +236,13 @@ export default class Rewrite extends Component {
     const { id } = record;
     const { dispatch } = this.props;
     dispatch({
-      type: "rewrite/saveCurrentSelector",
+      type: "common/saveCurrentSelector",
       payload: {
         currentSelector: record
       }
     });
     dispatch({
-      type: "rewrite/fetchRule",
+      type: "common/fetchRule",
       payload: {
         currentPage: 1,
         pageSize: 12,
@@ -223,7 +257,7 @@ export default class Rewrite extends Component {
     const selectorId = currentSelector ? currentSelector.id : "";
     const { id } = record;
     dispatch({
-      type: "rewrite/fetchRuleItem",
+      type: "common/fetchRuleItem",
       payload: {
         id
       },
@@ -234,7 +268,7 @@ export default class Rewrite extends Component {
               {...rule}
               handleOk={values => {
                 dispatch({
-                  type: "rewrite/updateRule",
+                  type: "common/updateRule",
                   payload: {
                     selectorId,
                     ...values,
@@ -262,7 +296,7 @@ export default class Rewrite extends Component {
     const { dispatch, currentSelector } = this.props;
     const { rulePage } = this.state;
     dispatch({
-      type: "rewrite/deleteRule",
+      type: "common/deleteRule",
       payload: {
         list: [record.id]
       },
@@ -276,7 +310,8 @@ export default class Rewrite extends Component {
 
   asyncClick = () => {
     const { dispatch, plugins } = this.props;
-    const id = this.getPluginId(plugins, "rewrite");
+    let name = this.props.match.params ? this.props.match.params.id : ''
+    const id = this.getPluginId(plugins, name);
     dispatch({
       type: "global/asyncPlugin",
       payload: {
@@ -475,7 +510,7 @@ export default class Rewrite extends Component {
               <div style={{ display: "flex" }}>
                 <h3 style={{ marginRight: 30 }}>选择器规则列表</h3>
                 <Button icon="reload" onClick={this.asyncClick} type="primary">
-                  同步rewrite
+                  同步自定义
                 </Button>
               </div>
               <Button type="primary" onClick={this.addRule}>

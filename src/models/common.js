@@ -1,3 +1,4 @@
+
 import { message } from "antd";
 import {
   getAllSelectors,
@@ -13,7 +14,7 @@ import {
 } from "../services/api";
 
 export default {
-  namespace: "waf",
+  namespace: "common",
 
   state: {
     selectorList: [],
@@ -25,7 +26,6 @@ export default {
 
   effects: {
     *fetchSelector({ payload }, { call, put }) {
-
       const json = yield call(getAllSelectors, { ...payload });
       if (json.code === 200) {
         let { page, dataList } = json.data;
@@ -59,6 +59,7 @@ export default {
           });
         }
       }
+
     },
     *fetchRule({ payload }, { call, put }) {
       const json = yield call(getAllRules, payload);
@@ -205,6 +206,16 @@ export default {
         ...state,
         currentSelector: payload.currentSelector
       };
+    },
+    resetData() {
+      return {
+        selectorList: [],
+        ruleList: [],
+        selectorTotal: 0,
+        ruleTotal: 0,
+        currentSelector: ""
+      }
     }
   }
 };
+

@@ -5,7 +5,6 @@ import {
   getAllRules,
   addSelector,
   findSelector,
-  getAllPlugins,
   deleteSelector,
   updateSelector,
   addRule,
@@ -22,32 +21,12 @@ export default {
     ruleList: [],
     selectorTotal: 0,
     ruleTotal: 0,
-    currentSelector: "",
-    plugins: []
+    currentSelector: ""
   },
 
   effects: {
     *fetchSelector({ payload }, { call, put }) {
-      const res = yield call(getAllPlugins, {
-        currentPage: 1,
-        pageSize: 50
-      });
-      if (res.code === 200) {
-        let plugins = res.data.dataList;
-        yield put({
-          type: "savePlugins",
-          payload: {
-            dataList: plugins
-          }
-        });
-        const plugin = plugins.filter(item => {
-          return item.name === "rate_limiter";
-        });
-        let pluginId = "";
-        if (plugin && plugin.length > 0) {
-          pluginId = plugin[0].id;
-        }
-        const json = yield call(getAllSelectors, { ...payload, pluginId });
+        const json = yield call(getAllSelectors, { ...payload });
         if (json.code === 200) {
           let { page, dataList } = json.data;
           dataList = dataList.map(item => {
@@ -80,7 +59,6 @@ export default {
             });
           }
         }
-      }
     },
     *fetchRule({ payload }, { call, put }) {
       const json = yield call(getAllRules, payload);
@@ -185,7 +163,7 @@ export default {
       if (json.code === 200) {
         message.success("修改成功");
         callback();
-        yield put({ type: "reload", fetchValue });
+        yield put({ type: "reloadRule", fetchValue });
       } else {
         message.warn(json.message);
       }
@@ -220,13 +198,6 @@ export default {
         ...state,
         ruleList: payload.ruleList,
         ruleTotal: payload.ruleTotal
-      };
-    },
-
-    savePlugins(state, { payload }) {
-      return {
-        ...state,
-        plugins: payload.dataList
       };
     },
     saveCurrentSelector(state, { payload }) {

@@ -15,8 +15,8 @@ class AddModal extends Component {
     super(props);
     const ruleConditions = props.ruleConditions || [
       {
-        paramType: "",
-        operator: "",
+        paramType: "header",
+        operator: "=",
         paramName: "",
         paramValue: ""
       }
@@ -30,7 +30,7 @@ class AddModal extends Component {
       commandKey = "",
       loadBalance = "",
       version = "",
-      timeout = "",
+      timeout = "3000",
       group = "",
       retries = "";
 
@@ -147,8 +147,8 @@ class AddModal extends Component {
   handleAdd = () => {
     let { ruleConditions } = this.state;
     ruleConditions.push({
-      paramType: "",
-      operator: "",
+      paramType: "header",
+      operator: "=",
       paramName: "",
       paramValue: ""
     });

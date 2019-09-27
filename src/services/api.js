@@ -72,7 +72,10 @@ export async function updatePlugin(params) {
   return request(`${baseUrl}/plugin/${params.id}`, {
     method: `PUT`,
     body: {
-      code: params.code,
+      ids: [params.id],
+      name: params.name,
+      role: params.role,
+      config: params.config,
       enabled: params.enabled
     }
   });
@@ -120,6 +123,7 @@ export async function updateAuth(params) {
     method: `PUT`,
     body: {
       appKey: params.appKey,
+      appSecret: params.appSecret,
       enabled: params.enabled
     }
   });

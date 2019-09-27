@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Table, Input, Button, message } from "antd";
+import { Table, Input, Button, message,Popconfirm } from "antd";
 import { connect } from "dva";
 import AddModal from "./AddModal";
 
@@ -116,6 +116,9 @@ export default class Auth extends Component {
           appKey,
           currentPage,
           pageSize: 12
+        },
+        callback: () => {
+          this.setState({ selectedRowKeys: [] })
         }
       });
     } else {
@@ -147,6 +150,7 @@ export default class Auth extends Component {
                 pageSize: 12
               },
               callback: () => {
+                this.setState({ selectedRowKeys: [] })
                 this.closeModal();
               }
             });
@@ -243,13 +247,24 @@ export default class Auth extends Component {
           >
             查询
           </Button>
-          <Button
-            style={{ marginLeft: 20 }}
-            type="danger"
-            onClick={this.deleteClick}
+
+          <Popconfirm
+            title="你确认删除吗"
+            placement='bottom'
+            onConfirm={() => {
+              this.deleteClick()
+            }}
+            okText="确认"
+            cancelText="取消"
           >
-            删除勾选数据
-          </Button>
+            <Button
+              style={{ marginLeft: 20 }}
+              type="danger"
+            >
+              删除勾选数据
+            </Button>
+          </Popconfirm>
+         
           <Button
             style={{ marginLeft: 20 }}
             type="primary"

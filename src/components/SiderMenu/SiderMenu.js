@@ -28,14 +28,17 @@ const getIcon = icon => {
  * [{path:string},{path:string}] => [path,path2]
  * @param  menu
  */
-export const getFlatMenuKeys = menu =>
-  menu.reduce((keys, item) => {
+export const getFlatMenuKeys = menu => {
+  return menu.reduce((keys, item) => {
     keys.push(item.path);
     if (item.children) {
       return keys.concat(getFlatMenuKeys(item.children));
     }
     return keys;
   }, []);
+}
+
+
 
 /**
  * Find all matched menu keys based on paths
@@ -80,6 +83,16 @@ export default class SiderMenu extends PureComponent {
     return getMenuMatchKeys(this.flatMenuKeys, urlToList(pathname));
   }
 
+  saveCurrentRoute = (route) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/saveCurrentRoutr',
+      payload: {
+        currentRouter: route
+      }
+    })
+  }
+
   /**
    * 判断是否是http链接.返回 Link 或 a
    * Judge whether it is http link.return a or Link
@@ -107,8 +120,8 @@ export default class SiderMenu extends PureComponent {
         onClick={
           isMobile
             ? () => {
-                onCollapse(true);
-              }
+              onCollapse(true);
+            }
             : undefined
         }
       >
@@ -135,8 +148,8 @@ export default class SiderMenu extends PureComponent {
                   <span>{item.name}</span>
                 </span>
               ) : (
-                item.name
-              )
+                  item.name
+                )
             }
             key={item.path}
           >
@@ -146,7 +159,7 @@ export default class SiderMenu extends PureComponent {
       }
       return null;
     } else {
-      return <Menu.Item key={item.path}>{this.getMenuItemPath(item)}</Menu.Item>;
+      return <Menu.Item onClick={() => { this.saveCurrentRoute(item) }} key={item.path}>{this.getMenuItemPath(item)}</Menu.Item>;
     }
   };
 
@@ -173,6 +186,8 @@ export default class SiderMenu extends PureComponent {
     const {
       location: { pathname },
     } = this.props;
+
+    // console.log(this.flatMenuKeys, urlToList(pathname));
     return getMenuMatchKeys(this.flatMenuKeys, urlToList(pathname));
   };
 
@@ -216,13 +231,14 @@ export default class SiderMenu extends PureComponent {
     const menuProps = collapsed
       ? {}
       : {
-          openKeys,
-        };
+        openKeys,
+      };
     // if pathname can't match, use the nearest parent's key
     let selectedKeys = this.getSelectedMenuKeys();
     if (!selectedKeys.length) {
       selectedKeys = [openKeys[openKeys.length - 1]];
     }
+
     return (
       <Sider
         trigger={null}
